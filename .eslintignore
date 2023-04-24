@@ -1,0 +1,8 @@
+node_modules/
+coverage/
+build/
+*.min.js
+*.min.css
+*.test.js
+*.spec.js
+*.e2e.js

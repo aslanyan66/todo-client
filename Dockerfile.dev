@@ -1,0 +1,14 @@
+FROM node:18-alpine
+
+# Set NODE_ENV to development
+ENV NODE_ENV=development
+
+# Set the working directory
+WORKDIR /app
+COPY ./package.json /app/
+RUN yarn install
+
+COPY . /app/
+
+# Expose the development server port
+EXPOSE 3000

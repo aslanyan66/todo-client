@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  app-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    command: yarn dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app/
+      - node_modules:/usr/src/app/node_modules
+  app-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    ports:
+      - "80:80"
+volumes:
+  node_modules:
