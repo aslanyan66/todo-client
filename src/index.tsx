@@ -5,7 +5,7 @@ import { ApolloProvider } from '@apollo/client'
 import { client as apolloClient } from './apollo'
 import { CssBaseline } from '@mui/material'
 
-import 'styles/index.scss'
+import 'styles/index.css'
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 root.render(

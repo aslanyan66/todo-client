@@ -1,4 +1,4 @@
-@import "reset";
+@import "reset.css";
 
 .container {
   width: 100%;
@@ -34,9 +34,10 @@
   width: 99%;
   background: #d3d3d3;
 
-  & > .text {
-    flex: 1
-  }
+}
+
+.todo > .text {
+  flex: 1
 }
 
 
