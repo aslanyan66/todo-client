@@ -38,8 +38,8 @@ class TodoApi {
   updateTodo() {
     return gql`
       ${TODO_INFO}
-      mutation UpdateTodo($id: ID!, $title: String, $isCompleted: Boolean) {
-        updateTodo(id: $id, title: $title, isCompleted: $isCompleted) {
+      mutation UpdateTodo($id: ID!, $title: String, $isCompleted: Boolean, $action: String!) {
+        updateTodo(id: $id, title: $title, isCompleted: $isCompleted, action: $action) {
           ...TodoFields
         }
       }

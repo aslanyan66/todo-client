@@ -12,7 +12,7 @@ const CustomButton = ({
   children,
 }: PropsWithChildren<ICustomButtonProps>) => {
   return (
-    <Button variant="contained" size="medium" color={color} onClick={onClick}>
+    <Button variant="contained" size="small" color={color} onClick={onClick}>
       {children}
     </Button>
   )

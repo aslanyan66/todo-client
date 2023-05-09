@@ -1,29 +1,25 @@
-import Todo from './TodoItem'
-import { useTodos, useTodoSubscriptions } from 'hooks'
+import { useSnackbar, useTodos, useTodoSubscriptions } from 'hooks'
 import { ITodo } from 'models/todos'
-import { Box, CircularProgress } from '@mui/material'
+import { Loader, Todo } from './index'
 
 const TodoList = () => {
-  const { todos, loading } = useTodos()
+  const { todos, loading, error } = useTodos()
+  const { showError } = useSnackbar()
+
   useTodoSubscriptions()
+
+  if (error) {
+    showError(error.message)
+    return null
+  }
+
+  if (loading) return <Loader />
 
   return (
     <ul className="todos">
-      {loading ? (
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            with: '100%',
-            height: '100%',
-          }}
-        >
-          <CircularProgress />
-        </Box>
-      ) : (
-        todos.map((todo: ITodo) => <Todo key={todo.id} {...todo} />)
-      )}
+      {todos.map((todo: ITodo) => (
+        <Todo key={todo.id} {...todo} />
+      ))}
     </ul>
   )
 }

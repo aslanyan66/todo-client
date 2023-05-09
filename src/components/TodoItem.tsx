@@ -1,6 +1,6 @@
-import { ChangeEvent, useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 import { ITodo } from 'models/todos'
-import { useDeleteTodo, useUpdateTodo } from 'hooks'
+import { useDeleteTodo, useDialog, useUpdateTodo } from 'hooks'
 import { Checkbox, Box, TextField } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
@@ -10,23 +10,48 @@ import { CustomButton } from './index'
 type IProps = ITodo
 
 const TodoItem = ({ title, isCompleted, id }: IProps) => {
-  const { handleUpdateTodo } = useUpdateTodo()
+  const { open: openDialog } = useDialog()
+
+  const { handleTodoUpdate } = useUpdateTodo()
   const { handleDeleteTodo } = useDeleteTodo()
 
   const [isEditTodo, setIsEditTodo] = useState(false)
   const [editingTitle, setEditingTitle] = useState(title)
 
-  const toggleCompleted = (evt: ChangeEvent<HTMLInputElement>) => {
-    handleUpdateTodo({ id, isCompleted: evt.target.checked, title })
+  const onToggleCompleted = (evt: ChangeEvent<HTMLInputElement>) => {
+    handleTodoUpdate({ id, isCompleted: evt.target.checked, title }, 'toggle-completed')
   }
-  const onTodoEdit = () => setIsEditTodo(true)
 
-  const onTitleChange = (evt: ChangeEvent<HTMLInputElement>) => setEditingTitle(evt.target.value)
-  const handleEditSave = () => {
-    if (editingTitle.trim()) {
-      setIsEditTodo(false)
-      handleUpdateTodo({ id, isCompleted, title: editingTitle })
+  const onTodoEdit = () => setIsEditTodo(true)
+  const onTodoTitleChange = (evt: ChangeEvent<HTMLInputElement>) =>
+    setEditingTitle(evt.target.value)
+
+  const onEditSave = () => {
+    const currentValue = editingTitle.trim()
+    if (currentValue && currentValue !== title) {
+      handleTodoUpdate({ id, isCompleted, title: currentValue }, 'edit-title')
+      setEditingTitle(title)
     }
+    setIsEditTodo(false)
+  }
+
+  useEffect(() => {
+    setEditingTitle(title)
+  }, [title])
+
+  const onDelete = () => {
+    openDialog({
+      options: {
+        onSubmit: () => handleDeleteTodo(id),
+        title: 'Are you sure?',
+        // There we can use any component as we need
+        Component: () => (
+          <p>
+            Make sure that you need to remove <b>{title}</b> item.
+          </p>
+        ),
+      },
+    })
   }
 
   return (
@@ -39,17 +64,17 @@ const TodoItem = ({ title, isCompleted, id }: IProps) => {
             autoFocus
             fullWidth
             value={editingTitle}
-            onChange={onTitleChange}
+            onChange={onTodoTitleChange}
           />
         ) : (
           <p>{title}</p>
         )}
       </div>
 
-      <Checkbox checked={isCompleted} onChange={toggleCompleted} />
+      <Checkbox checked={isCompleted} onChange={onToggleCompleted} />
       <Box sx={{ display: 'flex', columnGap: '5px' }}>
         {isEditTodo ? (
-          <CustomButton color="primary" startIcon={<SaveAsIcon />} onClick={handleEditSave}>
+          <CustomButton color="primary" startIcon={<SaveAsIcon />} onClick={onEditSave}>
             Save
           </CustomButton>
         ) : (
@@ -57,7 +82,7 @@ const TodoItem = ({ title, isCompleted, id }: IProps) => {
             Edit
           </CustomButton>
         )}
-        <CustomButton color="error" startIcon={<DeleteIcon />} onClick={() => handleDeleteTodo(id)}>
+        <CustomButton color="error" startIcon={<DeleteIcon />} onClick={onDelete}>
           Delete
         </CustomButton>
       </Box>

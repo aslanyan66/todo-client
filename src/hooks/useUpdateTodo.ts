@@ -1,8 +1,11 @@
 import { useMutation } from '@apollo/client'
 import TodoApi from 'api/todo.api'
-import { ITodo } from 'models/todos'
+import { ITodo, ITodoUpdateAction } from 'models/todos'
+import { useSnackbar } from './index'
 
 export const useUpdateTodo = () => {
+  const { showError, open: showMessage } = useSnackbar()
+
   const [updateTodo] = useMutation(TodoApi.updateTodo(), {
     update(cache, { data: { updateTodo } }) {
       cache.modify({
@@ -17,22 +20,24 @@ export const useUpdateTodo = () => {
         },
       })
     },
-    onError: (error) => {
-      console.log(error.message)
-    },
   })
 
-  const handleUpdateTodo = (variables: ITodo) => {
+  const handleTodoUpdate = (todo: ITodo, actionName: ITodoUpdateAction) => {
     return updateTodo({
-      variables,
+      variables: {
+        ...todo,
+        action: actionName,
+      },
       optimisticResponse: {
         updateTodo: {
           __typename: 'Todo',
-          ...variables,
+          ...todo,
         },
       },
+      onError: (error) => showError(error.message),
+      onCompleted: () => showMessage({ message: 'Updated!', severity: 'success' }),
     })
   }
 
-  return { handleUpdateTodo }
+  return { handleTodoUpdate }
 }

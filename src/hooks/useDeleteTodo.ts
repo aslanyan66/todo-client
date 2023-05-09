@@ -1,9 +1,11 @@
 import { useMutation } from '@apollo/client'
 import TodoApi from 'api/todo.api'
 import { ITodo, IUniqueId } from 'models/todos'
+import { useSnackbar } from './index'
 
 export const useDeleteTodo = () => {
   const [deleteTodo] = useMutation(TodoApi.deleteTodo())
+  const { showError, open: showMessage } = useSnackbar()
 
   const handleDeleteTodo = (id: IUniqueId) =>
     deleteTodo({
@@ -19,6 +21,8 @@ export const useDeleteTodo = () => {
           id,
         },
       }),
+      onError: (error) => showError(error.message),
+      onCompleted: () => showMessage({ message: 'Removed!', severity: 'success' }),
     })
 
   return { handleDeleteTodo }

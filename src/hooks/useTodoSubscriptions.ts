@@ -2,6 +2,7 @@ import { useApolloClient, useSubscription } from '@apollo/client'
 import TodoApi from 'api/todo.api'
 import { ITodo } from 'models/todos'
 import { TODO_INFO } from 'api/fragments/todo.fragments'
+import { useSnackbar } from './index'
 
 const updateTodoListOnAdd = ({ id, title, isCompleted }: ITodo) => ({
   id: `${id}`,
@@ -10,23 +11,25 @@ const updateTodoListOnAdd = ({ id, title, isCompleted }: ITodo) => ({
 })
 
 export const useTodoSubscriptions = () => {
+  const { showError, open: showMessage } = useSnackbar()
+
   const client = useApolloClient()
   useSubscription(TodoApi.todoAddedSubscription(), {
-    onSubscriptionData({ client: { cache }, subscriptionData }) {
-      const { todoAdded } = subscriptionData.data
-      const cachedList = cache.readQuery<{ todos: { edges: { node: ITodo }[] } }>({
+    onData({ client: { cache }, data }) {
+      const { todoAdded } = data.data
+      const cachedList = cache.readQuery<{ todos: ITodo[] }>({
         query: TodoApi.getTodos(),
       })
 
-      const todoExits = cachedList?.todos?.edges?.some(
-        ({ node: { id } }: { node: Partial<ITodo> }) => id === todoAdded.id,
-      )
+      const todoExits = cachedList?.todos.some(({ id }: ITodo) => id === todoAdded.id)
 
       if (todoExits) {
         cache.writeFragment(updateTodoListOnAdd(todoAdded))
       } else {
         client.refetchQueries({ include: [TodoApi.getTodos()] })
       }
+      showMessage({ message: 'Added random todo!', severity: 'info' })
     },
+    onError: (error) => showError(error.message),
   })
 }

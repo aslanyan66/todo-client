@@ -5,3 +5,5 @@ export interface ITodo {
   title: string
   isCompleted: boolean
 }
+
+export type ITodoUpdateAction = 'toggle-completed' | 'edit-title'
